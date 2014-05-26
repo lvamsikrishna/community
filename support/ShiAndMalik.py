@@ -3,6 +3,9 @@ import networkx as nx
 import numpy as np
 import random as r
 import scipy.sparse.linalg
+import matplotlib.pyplot as plt
+import matplotlib
+
 
 GROUPS_FORMED=2
 
@@ -12,8 +15,6 @@ def cut(A,groups,formed):
 		for j in range(A.shape[1]):
 			if(A.item(i,j)==1 and groups[i]!=groups[j]):
 				cut_size=cut_size+1
-	#print "cut_size"
-	#print cut_size
 	return cut_size
 
 def vol(D,groups,formed):
@@ -24,10 +25,6 @@ def vol(D,groups,formed):
 			volA=volA+D.item(i,i)
 		else:
 			volB=volB+D.item(i,i)
-	#print "volA"
-	#print volA
-	#print "volB"
-	#print volB
 	return (volA,volB)
 
 def ncut(A,D,groups,formed):
@@ -57,7 +54,6 @@ def SM(A,D,k,formed,grpNumber):
 		if(ncuts[i]<minimum_ncut):
 			minimum_ncut=ncuts[i]
 			finalGrouping=groups.copy()
-	#print finalGrouping
 	mask1=finalGrouping==grpNumber
 	mask2=finalGrouping==formed
 	A_1=A[mask1][:,mask1]
@@ -81,16 +77,14 @@ def SM(A,D,k,formed,grpNumber):
 		D=D_1
 		mask=mask1
 	indices=np.where(mask==True)
-	#print indices
 	if(formed<k):
 		ret=SM(A,D,k,formed+1,grpNumber)
-		indices=np.where(mask==True)
-		indices=indices[0]
+		indices=np.where(mask==True)[0]
 		for i in range(indices.shape[0]):
 			finalGrouping[indices[i]]=ret[i]	
 	return finalGrouping
 
-
+#matplotlib.use('Agg')
 G=nx.read_gml("karate.gml") 
 A=nx.to_numpy_matrix(G)
 N=A.shape[0]
@@ -100,14 +94,6 @@ D=np.diag(degree_list_values)
 k = int(raw_input("Enter the number of clusters: "))
 result=SM(A,D,k,2,1)
 print result
-
-#print A_new.shape
-'''print ncuts
-print finalGrouping
-print minimum_ncut
-print min(ncuts)
-print np.argmin(ncuts)
-'''
-
-
+nx.draw(G,pos=nx.circular_layout(G))
+plt.savefig("a.png")
 
